@@ -48,17 +48,34 @@
 <script>
 var socket = io();
 
-socket.on("error", function(msg){
-    alert(msg);
-    });
-
+// listens for when opponent left the game
 socket.on("opponentDC", function(msg){
     alert(msg)
     // close the game somehow
     });
 
-socket.on("name", function(msg){
-    // do things
+// listens for error messages
+socket.on("error", function(msg){
+    alert(msg);
+    });
+
+// fresh board
+var game = {
+    boardstate: 
+    [
+        [1,0,1,0,1,0,1,0],
+        [0,1,0,1,0,1,0,1],
+        [1,0,1,0,1,0,1,0],
+        [0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0],
+        [0,-1,0,-1,0,-1,0,-1],
+        [-1,0,-1,0,-1,0,-1,0],
+        [0,-1,0,-1,0,-1,0,-1]
+    ]};
+        
+// loads checkers board
+socket.on("updateBoard", function(msg){
+    game = msg;
     });
 
 function hideSetup()
@@ -79,25 +96,16 @@ function hostGame()
     // communicate with server and generate game id for the user
     io.emit("gameReq", -1);
     
-    // listener for the game id
+    // listens for the game id
     socket.on("gid", function(msg){
         document.getElementById("gid").innerHTML = "Your room ID is: " + msg;
         });
 
-    // loads checkers board
-   
+    // load the checker board graphics 
 
-    // temp lines for testing  
-    var board_img = document.getElementById("checkersboard")
-    board_img.src = "./.checkersboard.png";
-    board_img.width = "500";
-    board_img.height = "500";
-    document.getElementById("textblock").style.display = "block";
-    document.getElementById("hostgid").innerHTML = "Your game ID is 12345";
+    // clean up after the game is over
+    // gameOver();
     
-    // someway to check if the game is over
-    //gameOver();
-
 }
 
 function joinGame()
@@ -106,14 +114,12 @@ function joinGame()
     hideSetup();
 
     var gameID = prompt("Please enter the Game ID that you are joining");
-    socket.on("gameReq", parseInt(gameID));
+    io.emit("gameReq", parseInt(gameID));
     
-    // joins the game and load the checkers board
+    // load the checkers board graphics
 
-    // temporary line that shows the user input for testing
-    document.getElementById("gid").innerHTML = "The game ID is: " + gameID;
-    // someway to check if the game is over
-    //gameOver();
+    // clean up after the game is over 
+    // gameOver();
 }
 </script>
 

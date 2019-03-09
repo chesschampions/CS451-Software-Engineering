@@ -88,11 +88,11 @@ io.on('connection', function(socket){
                 }
             }
             //No room found send error to client.
-            if (roomid === -2) { io.emit("error", "Didn't work bruh.")}
+            if (roomid === -2) { io.emit("error", "No game found")}
         } else {
             console.log("bad message received.");
             //error to client.
-            io.emit("error", "bad message received");
+            io.emit("error", "invalid game ID");
         }
     });
 
@@ -102,7 +102,7 @@ io.on('connection', function(socket){
             //GameEngine.movevalidator(msg);
         if(validmove){
             //game.boardstate = GameEngine.makemove(game.boardstate,msg);
-            io.to(roomid).emit(game.boardstate);
+            io.to(roomid).emit("updateBoard", game.boardstate);
         } else {
             io.emit("error","bad move");
         }
