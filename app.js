@@ -51,7 +51,7 @@ function saveSession(boardObj, roomid){
 }
 
 io.on('connection', function(socket){
-    console.log("user connected " + checker);
+    //console.log("user connected " + checker);
     //Fresh board is generated.
     var game = {
         boardstate :
@@ -71,6 +71,8 @@ io.on('connection', function(socket){
         if(msg === -1){
             roomid=sessionCount;
             io.join(roomid);
+            // emits the game id back to the client
+            io.emit("gid", roomid);
             saveSession(game,roomid);
             sessionCount++;
 
@@ -86,11 +88,11 @@ io.on('connection', function(socket){
                 }
             }
             //No room found send error to client.
-            if (roomid === -2) { io.emit("Didn't work bruh.")}
+            if (roomid === -2) { io.emit("error", "Didn't work bruh.")}
         } else {
             console.log("bad message received.");
             //error to client.
-            io.emit("bad message received");
+            io.emit("error", "bad message received");
         }
     });
 
@@ -102,7 +104,7 @@ io.on('connection', function(socket){
             //game.boardstate = GameEngine.makemove(game.boardstate,msg);
             io.to(roomid).emit(game.boardstate);
         } else {
-            io.emit("Bad move");
+            io.emit("error","bad move");
         }
     });
 
@@ -114,6 +116,6 @@ io.on('connection', function(socket){
         console.log("user disconnected, saving game");
         saveSession(game,roomid);
         console.log("sending error to other player.");
-        io.to(roomid).emit("The other guy left bro.")
+        io.to(roomid).emit("oppoentDC","The opponent left")
     });
 });
