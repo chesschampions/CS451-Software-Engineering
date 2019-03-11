@@ -124,7 +124,7 @@ socket.on("opponentDC", function(msg){
 // listens for error messages
 socket.on("clientError", function(msg){
     alert(msg);
-    });
+});
 
 // fresh board
 var game = {
@@ -146,12 +146,14 @@ socket.on("playerName", function(msg)
     game.Player = msg;
 });
 
+socket.on("hello",function(msg){console.log("Hello");});
 
 // loads checkers board
 socket.on("updateBoard", function(msg){
-    game.board = msg[1];
-    game.Player = msg[0];
-    document.getElementById("currentTurn").innerHTML = "It's currently player " + game.Player + "'s turn";
+    game.boardstate = msg;
+    renderBoard();
+    //TODO: CURTURN
+    //document.getElementById("currentTurn").innerHTML = "It's currently player " + game.Player + "'s turn";
     });
     
 // listens for the game id
@@ -166,6 +168,26 @@ function hideSetup()
     document.getElementById("header").innerHTML = "Checkers game team7";
     document.getElementById("currentTurn").innerHTML = "It's currently player " + game.Player + "'s turn";
 }
+
+window.setInterval(renderBoard(), 500);
+
+//Convert a board to a graphical representation.
+function renderBoard(){
+    console.log("HEY")
+    for(var row = 0; row < 7; row++){
+        for(var col = 0; col< 7; col++){
+            var id = row.toString() + col.toString();
+            console.log(id);
+            if      (game.boardstate[row][col] == 0){document.getElementById(id.toString()).textContent = "";}
+            else if (game.boardstate[row][col] == 1){document.getElementById(id.toString()).textContent ="O";}
+            else if (game.boardstate[row][col] == 2){document.getElementById(id.toString()).textContent ="Q";}
+            else if (game.boardstate[row][col] == 3){document.getElementById(id.toString()).textContent ="X";}
+            else if (game.boardstate[row][col] == 4){document.getElementById(id.toString()).textContent ="Z";}
+            else {console.log("damn somehing went wrong.")}
+        }
+    }
+}
+
 
 function gameOver()
 {
@@ -187,10 +209,6 @@ function startGame(hosting)
 
 //GUI CODE:
 //globals
-
-var board = game.boardstate;
-var player = game.Player;
-
 var lastHighlightedMoves = [];
 
 var currentlySelectedPiece;
@@ -213,14 +231,14 @@ function reply_click(clicked_id) {
                 }
             }
         } else */
-        var movereq = [player, row, column, movingPiece[0], movingPiece[1]];
+        var movereq = [game.Player, movingPiece[0], movingPiece[1], row, column];
 
-        socket.emit("moveReq", movereq, function(res) {
-            if (clickedSquare.className === "green" && res === true)
+        socket.emit("moveReq", movereq);//, function(res) {
+            //if (clickedSquare.className === "green" && res === true)
             //Move Piece Changes GUI.
-                movePiece(clickedSquare, row, column);
+                //movePiece(clickedSquare, row, column);
             currentlySelectedPiece = null;
-            clearLastHighlightedMoves();});
+            clearLastHighlightedMoves();//});
     } else {
     currentlySelectedPiece = clickedSquare;
 
@@ -240,83 +258,11 @@ function reply_click(clicked_id) {
     }
 }
 
-function hasMandatory(){
-    var allPieces = document.getElementsByClassName("black");
-    var myPieces = [];
-    if(player == "O"){
-        for(i = 0; i<allPieces.length; i++){
-            if(allPieces[i].textContent == "O")
-                myPieces.push(allPieces[i]);
-        }
-    } else {
-        for(i = 0; i<allPieces.length; i++){
-            if(allPieces[i].textContent == "X")
-                myPieces.push(allPieces[i]);
-        }
-    }
-
-    for(i = 0; i<myPieces.length; i++){
-        var pieceID = myPieces[i].id;
-        var row = parseInt(pieceID);
-        row = row < 10? 0 : Math.floor(row / 10);
-        var column = parseInt(pieceID);
-        column = column % 10;
-        var listOfMoves = checkR(row, column);
-        if(listOfMoves.length != 0){
-            alert("has mandatory move is true");
-            return true;
-        }
-    }
-
-    return false;
-}
-
-function isEatingPiece(clicked_id){
-    var allPieces = document.getElementsByClassName("black");
-    var myPieces = [];
-    if(player == "O"){
-        for(i = 0; i<allPieces.length; i++){
-            if(allPieces[i].textContent == "O")
-                myPieces.push(allPieces[i]);
-        }
-    } else {
-        for(i = 0; i<allPieces.length; i++){
-            if(allPieces[i].textContent == "X")
-                myPieces.push(allPieces[i]);
-        }
-    }
-
-    for(i = 0; i<myPieces.length; i++){
-        var pieceID = myPieces[i].id;
-        var row = parseInt(pieceID);
-        row = row < 10? 0 : Math.floor(row / 10);
-        var column = parseInt(pieceID);
-        column = column % 10;
-        var listOfMoves = checkR(row, column);
-
-        for(j = 0; j<listOfMoves; j++){
-            if(parseInt(clicked_id) == listOfMoves[j])
-                alert("is eating piece is true");
-            return true;
-        }
-
-    }
-
-    return false;
-}
-
 function movePiece(clickedSquare, row, column)
 {
     clickedSquare.textContent = currentlySelectedPiece.textContent;
     currentlySelectedPiece.textContent = "";
     clickedPieceID = currentlySelectedPiece.id;
-    var row1 = parseInt(clickedPieceID);
-    row1 = row1 < 10 ? 0 : Math.floor(row1 / 10);
-
-    var column1 = parseInt(clickedPieceID);
-    column1 = column1 % 10;
-    board[row][column] = board[row1][column1];
-    board[row1][column1] = 0;
     currentlySelectedPiece = null;
 }
 
@@ -330,6 +276,7 @@ function clearLastHighlightedMoves()
 
 function checkG(y, x)
 {
+    let board = game.boardstate;
     //returns array of regular moves(green fields)
     var type = board[y][x];
     var moves = [];
@@ -400,6 +347,7 @@ function checkG(y, x)
 
 function checkR(y, x)
 {
+    var board = game.boardstate;
     //returns array of possible jump moves(red fields)
     var type=board[y][x];
     var moves=[];
