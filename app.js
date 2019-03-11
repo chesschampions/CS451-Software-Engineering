@@ -64,12 +64,12 @@ function makeMove(gameobj,movereq){
         if(nextmove[0][1] < nextmove[1][1]){
             gameobj.boardstate[nextmove[0][0]-1][nextmove[0][1]+1] = 0; }
         else{
-            gameobj.boardstate[nextmove[0][0]-1][nextmove[1][1]-1] = 0; }
+            gameobj.boardstate[nextmove[0][0]-1][nextmove[1][1]+1] = 0; }
 
     } // down
     else if(nextmove[0][0] < nextmove[1][0]&& nextmove[1][0] - nextmove[0][0] == 2){
         if(nextmove[0][1] < nextmove[1][1]){
-            gameobj.boardstate[nextmove[1][0]-1][nextmove[1][1]+1] = 0;
+            gameobj.boardstate[nextmove[1][0]-1][nextmove[1][1]-1] = 0;
         }
         else{
             gameobj.boardstate[nextmove[1][0]-1][nextmove[0][1]-1] = 0;
@@ -389,7 +389,7 @@ io.on('connection', function(socket){
 
     //Moves done through callback functions and promises.
     socket.on("moveReq", function(msg,fn){
-        if(isgame && msg[0] == game.curPlayer) {
+        if(isgame) {
             //temp value for addedmove
             //var validmove = gameengine.movevalidator(msg);
             console.log("Recived Move Request");
@@ -410,7 +410,6 @@ io.on('connection', function(socket){
                     if (checkForWin(game.curPlayer, game.boardstate)) {
                         io.in(roomid.toString()).emit("won", game.curPlayer);
                     }
-                }
                 } else if (movestatus == 1) {
                     socket.emit("clientError", "not your turn yet");
                 } else if (movestatus == 2) {
@@ -418,7 +417,8 @@ io.on('connection', function(socket){
                 } else if (movestatus == 3) {
                     socket.emit("clientError", "That's not a valid move!");
                 }
-        });
+                
+        }});
 
     //Disconnection Handler
     //Save game state in file
