@@ -90,11 +90,11 @@ function checkForMandatoryMoves(player,board){
     console.log("ALL PIECES " + allPieces[0]);
     for(var i=0; i<allPieces.length; i++) {
         var piece = allPieces[i];
+        var jumpcoords = checkForJumps(board, piece[1], piece[2]);
         console.log("PIECE TEST " + piece[1] + " " + piece[2]);
-        console.log("CHECKING FOR JUMPs " + checkForJumps(board, piece[1], piece[2]) + " " );
-        if (checkForJumps(board, piece[1], piece[2]).length == 1){
-            mandatoryMoves.concat(checkForJumps(board, piece[1], piece[2]));
-        }
+        console.log("CHECKING FOR JUMPs " + jumpcoords[0] + " " );
+        mandatoryMoves.push(jumpcoords[i]);
+        console.log("MOND 1" + mandatoryMoves);
     }
     console.log("MANDATORY " + mandatoryMoves);
     return mandatoryMoves;
@@ -122,9 +122,9 @@ function checkForJumps(board, row, col){
 
         //Need to change so it doesn't get stuck on it's own pieces.
         if(row < maxRow && col < maxCol && board[row+2][col+2] == 0 && board[row+1][col+1] != 0) {upRight   = [row+2,col+2]; if(isO(board[row][col])) { if(!(isO(board[row+1][col+1]))){Oupmoves.push(upRight);} } else {    if(isO(board[row+1][col+1])){Xupmoves.push(upRight);}}}
-        if(row > minRow && col < maxCol && board[row-2][col+2] == 0 && board[row-1][col+1] != 0) {downRight = [row-2,col+2]; if(isO(board[row][col])) { if(!(isO(board[row-1][col+1]))){Odownmoves.push(upRight);} } else {  if(isO(board[row-1][col+1])){Xdownmoves.push(downRight);}}}
-        if(row < maxRow && col > minCol && board[row+2][col-2] == 0 && board[row+1][col-1] != 0) {upLeft    = [row+2,col-2]; if(isO(board[row][col])) { if(!(isO(board[row+1][col-1]))){Oupmoves.push(upRight);} } else {    if(isO(board[row+1][col-1])){Xupmoves.push(upLeft);}}}
-        if(row > minRow && col > minCol && board[row-2][col-2] == 0 && board[row-1][col-1] != 0) {downLeft  = [row-2,col-2]; if(isO(board[row][col])) { if(!(isO(board[row-1][col-1]))){Odownmoves.push(upRight);} } else {  if(isO(board[row-1][col-1])){Xdownmoves.push(downLeft);}}}
+        if(row > minRow && col < maxCol && board[row-2][col+2] == 0 && board[row-1][col+1] != 0) {downRight = [row-2,col+2]; if(isO(board[row][col])) { if(!(isO(board[row-1][col+1]))){Odownmoves.push(downRight);} } else {  if(isO(board[row-1][col+1])){Xdownmoves.push(downRight);}}}
+        if(row < maxRow && col > minCol && board[row+2][col-2] == 0 && board[row+1][col-1] != 0) {upLeft    = [row+2,col-2]; if(isO(board[row][col])) { if(!(isO(board[row+1][col-1]))){Oupmoves.push(upLeft);} } else {    if(isO(board[row+1][col-1])){Xupmoves.push(upLeft);}}}
+        if(row > minRow && col > minCol && board[row-2][col-2] == 0 && board[row-1][col-1] != 0) {downLeft  = [row-2,col-2]; if(isO(board[row][col])) { if(!(isO(board[row-1][col-1]))){Odownmoves.push(downLeft);} } else {  if(isO(board[row-1][col-1])){Xdownmoves.push(downLeft);}}}
 
         console.log("jumps Xup and down " + Xupmoves + " " + Xdownmoves);
         console.log("jumps O yp and down" + Oupmoves + " "+ Odownmoves);
@@ -133,8 +133,11 @@ function checkForJumps(board, row, col){
         } else if(board[row][col] == 4 ){
             return Xupmoves.concat(Xdownmoves);
         } else if(board[row][col]==1){
-            return Odownmoves;
+            console.log("RETURNING ODOWN " + Odownmoves);
+            console.log("CHECKING OUP " + Oupmoves);
+            return Oupmoves;
         } else if(board[row][col] == 3){
+            console.log("RETURNING XupMoves " + Xupmoves);
             return Xupmoves;
         } else {
             console.log("Something bad happened with jump moves");
@@ -174,6 +177,19 @@ function getPieces(player,board){
     } else {
         console.log("bad getPieces req");
     }
+}
+
+function checkForWin(player, board){
+    var allPieces = getPieces(player,board);
+    if(allPieces.length == 0){
+        if(player == "O"){
+            alert("Player X has won the game!");
+        }
+        if(player == "X"){
+            alert("Player O has won the game!");
+        }
+    }
+
 }
 
 //Checks a ring of size 2 diagonally for any jumps.
@@ -240,9 +256,25 @@ function movevalidator(gameobj, movereq) {
     var board = gameobj.boardstate;
     var player = movereq[0];
 
-    var mandatoryMoves =checkForMandatoryMoves(player,gameobj.boardstate);
+    //var mandatoryMoves =checkForMandatoryMoves(player,gameobj.boardstate);
     console.log("Done with mandatory moves");
     var otherMoves = checkForMoves(gameobj.boardstate, origpos[0], origpos[1]);
+
+    var mandatoryMoves = [];
+    var allPieces =  getPieces(player,board);
+    console.log("ALL PIECES " + allPieces[0]);
+
+    for(var i=0; i<allPieces.length; i++) {
+        var piece = allPieces[i];
+        var jumpcoords = checkForJumps(board, piece[1], piece[2]);
+        console.log("PIECE TEST " + piece[1] + " " + piece[2]);
+        console.log("CHECKING FOR JUMPs " + jumpcoords[0] + " " );
+        for(var z =0; z<jumpcoords.length; z++){
+            mandatoryMoves.push(jumpcoords[i]);
+        }
+    }
+
+    console.log("MANDATORY " + mandatoryMoves);
 
     if(mandatoryMoves.length > 0){
         for(var i = 0; i < mandatoryMoves.length; i++) {
