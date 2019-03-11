@@ -67,12 +67,12 @@ function makeMove(gameobj,movereq){
             gameobj.boardstate[nextmove[0][0]-1][nextmove[1][1]-1] = 0; }
 
     } // down
-    else if(nextmove[0][0] < nextmove[1][0]&& nextmove[1][0] - nextmove[1][0] == 2){
+    else if(nextmove[0][0] < nextmove[1][0]&& nextmove[1][0] - nextmove[0][0] == 2){
         if(nextmove[0][1] > nextmove[1][1]){
-            gameobj.boardstate[nextmove[1][0]+1][nextmove[1][1]+1] = 0;
+            gameobj.boardstate[nextmove[1][0]-1][nextmove[1][1]-1] = 0;
         }
         else{
-            gameobj.boardstate[nextmove[1][0]+1][nextmove[0][1]+1] = 0;
+            gameobj.boardstate[nextmove[1][0]-1][nextmove[0][1]+1] = 0;
         }
     }
     gameobj.boardstate = checkForKings(gameobj.boardstate);
@@ -252,15 +252,13 @@ function checkForKings(board) {
 function movevalidator(gameobj, movereq) {
     console.log(movereq[0]);
     console.log(gameobj.curPlayer);
-    if(gameobj.curPlayer != movereq[0]){return false;}
+    if(gameobj.curPlayer != movereq[0]){return 1;}
 
     console.log("Passed Player Check");
 
     var origpos = [movereq[1],movereq[2]];
     var newpos  = [movereq[3],movereq[4]];
-
     var board = gameobj.boardstate;
-    var player = movereq[0];
 
     //var mandatoryMoves =checkForMandatoryMoves(player,gameobj.boardstate);
     console.log("Done with mandatory moves");
@@ -283,36 +281,25 @@ function movevalidator(gameobj, movereq) {
             jumpflag = true;
             for (var z = 0; z < jumpcoords.length; z++) {
                 if (equalmoves(jumpcoords[z], newpos) == true) {
-                    return true;
+                    var nextJump = checkForJumps(board, newpos[0], newpos[1]);
+                    if(nextJump != undefined && nextJump.length > 0) {
+                        return 4;
+                    } else {
+                        return 0;
+                    }
                 }
             }
         }}
 
-    //    if (jumpcoords.length > 0) {
-      //      for (var z = 0; z < jumpcoords.length; z++) {
-           //     mandatoryMoves.push(jumpcoords[i]);
-       //     }
-        //}
-    //}
-
-//    console.log("MANDATORY " + mandatoryMoves);
-
-    //if(jumpcoords.length > 0){
-        //for(var i = 0; i < mandatoryMoves.length; i++) {
-           // if (equalmoves(mandatoryMoves[i],newpos) == true) {
-       //         return true;
-         //   }
-       // }
-
     if(jumpflag){
-        return false;
+        return 2;
     } else {
         for(var i = 0; i < otherMoves.length; i++) {
             if (equalmoves(otherMoves[i],newpos) == true) {
-                return true;
+                return 0;
             }
         }
-        return false;
+        return 3;
     }
 }
 
@@ -407,19 +394,34 @@ io.on('connection', function(socket){
          //var validmove = gameengine.movevalidator(msg);
         console.log("Recived Move Request");
         game = openSession(roomid.toString());
-        if(movevalidator(game,msg)){
+        var movestatus =movevalidator(game,msg);
+        if(movestatus==0 || movestatus==4){
             game = makeMove(game,msg);
             console.log("sending move res");
-            io.in(roomid.toString()).emit("updateBoard", [game.boardstate,game.curPlayer]);
+            if(movestatus == 4){
+                game.curPlayer = msg[0];
+                io.in(roomid.toString()).emit("updateBoard", [game.boardstate,game.curPlayer]);
+                socket.emit("clientError","You have a second jump!");
+            } else {
+                io.in(roomid.toString()).emit("updateBoard", [game.boardstate,game.curPlayer]);
+            }
+
             saveSession(game,roomid);
             if(checkForWin(game.curPlayer, game.boardstate))
             {
                 io.in(roomid.toString()).emit("won", game.curPlayer);
             }
 
-        } else {
-            socket.emit("clientError","bad move");
-        }}
+        } else if(movestatus==1){
+            socket.emit("clientError","not your turn yet");
+        } else if(movestatus==2){
+            socket.emit("clientError","You have a jump that you need to take");
+        } else if(movestatus==3){
+            socket.emit("clientError","That's not a valid move!");
+        }
+
+        }
+
     });
 
     //Disconnection Handler
