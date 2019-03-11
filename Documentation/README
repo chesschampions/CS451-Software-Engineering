@@ -4,5 +4,8 @@ ChessChampions
 
 README
 
-This is a filler readme for testing pushing to our project
-
+Navigate to project library
+Download node
+Do npm install to install the dependencies
+node app.js
+Navigate to localhost:3000
