@@ -128,6 +128,7 @@ function checkForJumps(board, row, col){
 
         console.log("jumps Xup and down " + Xupmoves + " " + Xdownmoves);
         console.log("jumps O yp and down" + Oupmoves + " "+ Odownmoves);
+
         if (board[row][col] == 2){
             return Oupmoves.concat(Odownmoves);
         } else if(board[row][col] == 4 ){
@@ -135,12 +136,13 @@ function checkForJumps(board, row, col){
         } else if(board[row][col]==1){
             console.log("RETURNING ODOWN " + Odownmoves);
             console.log("CHECKING OUP " + Oupmoves);
-            return Oupmoves;
+            return Odupmoves;
         } else if(board[row][col] == 3){
             console.log("RETURNING XupMoves " + Xupmoves);
             return Xupmoves;
         } else {
             console.log("Something bad happened with jump moves");
+
         }
 }
 
@@ -243,7 +245,7 @@ function checkForKings(board) {
 }
 
 //TODO: Move validation
-function movevalidator(gameobj, movereq) {
+function movevalidator(gameobj, movereq, function()) {
     console.log(movereq[0]);
     console.log(gameobj.curPlayer);
     if(gameobj.curPlayer != movereq[0]){return false;}
@@ -260,30 +262,43 @@ function movevalidator(gameobj, movereq) {
     console.log("Done with mandatory moves");
     var otherMoves = checkForMoves(gameobj.boardstate, origpos[0], origpos[1]);
 
-    var mandatoryMoves = [];
+    var jumpflag = false;
+//    var mandatoryMoves = [];
     var allPieces =  getPieces(player,board);
-    console.log("ALL PIECES " + allPieces[0]);
+    console.log("ALL PIECES " + allPieces);
+
 
     for(var i=0; i<allPieces.length; i++) {
         var piece = allPieces[i];
         var jumpcoords = checkForJumps(board, piece[1], piece[2]);
         console.log("PIECE TEST " + piece[1] + " " + piece[2]);
         console.log("CHECKING FOR JUMPs " + jumpcoords[0] + " " );
-        if (jumpcoords.length > 0) {
-            for (var z = 0; z < jumpcoords.length; z++) {
-                mandatoryMoves.push(jumpcoords[i]);
+        if(jumpcoords.length > 0 && jumpcoords != undefined) {
+            jumpflag = true;
+            for (var i = 0; i < jumpcoords.length; i++) {
+                if (equalmoves(jumpcoords[i], newpos) == true) {
+                    return true;
+                }
             }
-        }
-    }
+        }}
 
-    console.log("MANDATORY " + mandatoryMoves);
+    //    if (jumpcoords.length > 0) {
+      //      for (var z = 0; z < jumpcoords.length; z++) {
+           //     mandatoryMoves.push(jumpcoords[i]);
+       //     }
+        //}
+    //}
 
-    if(mandatoryMoves.length > 0){
-        for(var i = 0; i < mandatoryMoves.length; i++) {
-            if (equalmoves(mandatoryMoves[i],newpos) == true) {
-                return true;
-            }
-        }
+//    console.log("MANDATORY " + mandatoryMoves);
+
+    //if(jumpcoords.length > 0){
+        //for(var i = 0; i < mandatoryMoves.length; i++) {
+           // if (equalmoves(mandatoryMoves[i],newpos) == true) {
+       //         return true;
+         //   }
+       // }
+
+    if(jumpflag){
         return false;
     } else {
         for(var i = 0; i < otherMoves.length; i++) {
