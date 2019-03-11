@@ -62,17 +62,17 @@ function makeMove(gameobj,movereq){
     if(nextmove[0][0] > nextmove[1][0]&& nextmove[0][0] - nextmove[1][0] == 2){
         //right
         if(nextmove[0][1] > nextmove[1][1]){
-            gameobj.boardstate[nextmode[0][0]-1][nextmove[0][1]-1] = 0; }
+            gameobj.boardstate[nextmove[0][0]-1][nextmove[0][1]-1] = 0; }
         else{
-            gameobj.boardstate[nextmode[0][0]-1][nextmove[1][1]-1] = 0; }
+            gameobj.boardstate[nextmove[0][0]-1][nextmove[1][1]-1] = 0; }
 
     } // down
     else if(nextmove[0][0] < nextmove[1][0]&& nextmove[1][0] - nextmove[1][0] == 2){
         if(nextmove[0][1] > nextmove[1][1]){
-            gameobj.boardstate[nextmode[1][0]-1][nextmove[0][1]-1] = 0;
+            gameobj.boardstate[nextmove[1][0]+1][nextmove[1][1]+1] = 0;
         }
         else{
-            gameobj.boardstate[nextmode[1][0]-1][nextmove[1][1]-1] = 0;
+            gameobj.boardstate[nextmove[1][0]+1][nextmove[0][1]+1] = 0;
         }
     }
     gameobj.boardstate = checkForKings(gameobj.boardstate);
@@ -122,13 +122,13 @@ function checkForJumps(board, row, col){
         var upLeft    = [];
 
         //Need to change so it doesn't get stuck on it's own pieces.
-        if(row < maxRow && col < maxCol && board[row+2][col+2] == 0 && board[row+1][col+1] != 0) {upRight   = [row+2,col+2]; if(isO(board[row][col])) { if(!(isO(board[row+1][col+1]))){Oupmoves.push(upRight);} } else {    if(isO(board[row+1][col+1])){Xupmoves.push(upRight);}}}
+        if(row < maxRow && col < maxCol && board[row+2][col+2] == 0 && board[row+1][col+1] != 0) {upRight   = [row+2,col+2]; if(isO(board[row][col])) { if(!(isO(board[row+1][col+1]))){Oupmoves.push(upRight);} } else {      if(isO(board[row+1][col+1])){Xupmoves.push(upRight);}}}
         if(row > minRow && col < maxCol && board[row-2][col+2] == 0 && board[row-1][col+1] != 0) {downRight = [row-2,col+2]; if(isO(board[row][col])) { if(!(isO(board[row-1][col+1]))){Odownmoves.push(downRight);} } else {  if(isO(board[row-1][col+1])){Xdownmoves.push(downRight);}}}
-        if(row < maxRow && col > minCol && board[row+2][col-2] == 0 && board[row+1][col-1] != 0) {upLeft    = [row+2,col-2]; if(isO(board[row][col])) { if(!(isO(board[row+1][col-1]))){Oupmoves.push(upLeft);} } else {    if(isO(board[row+1][col-1])){Xupmoves.push(upLeft);}}}
-        if(row > minRow && col > minCol && board[row-2][col-2] == 0 && board[row-1][col-1] != 0) {downLeft  = [row-2,col-2]; if(isO(board[row][col])) { if(!(isO(board[row-1][col-1]))){Odownmoves.push(downLeft);} } else {  if(isO(board[row-1][col-1])){Xdownmoves.push(downLeft);}}}
+        if(row < maxRow && col > minCol && board[row+2][col-2] == 0 && board[row+1][col-1] != 0) {upLeft    = [row+2,col-2]; if(isO(board[row][col])) { if(!(isO(board[row+1][col-1]))){Oupmoves.push(upLeft);} } else {       if(isO(board[row+1][col-1])){Xupmoves.push(upLeft);}}}
+        if(row > minRow && col > minCol && board[row-2][col-2] == 0 && board[row-1][col-1] != 0) {downLeft  = [row-2,col-2]; if(isO(board[row][col])) { if(!(isO(board[row-1][col-1]))){Odownmoves.push(downLeft);} } else {   if(isO(board[row-1][col-1])){Xdownmoves.push(downLeft);}}}
 
-        console.log("jumps Xup and down " + Xupmoves + " " + Xdownmoves);
-        console.log("jumps O yp and down" + Oupmoves + " "+ Odownmoves);
+        console.log("jumps Xup and down " + Xupmoves + " DD  " + Xdownmoves);
+        console.log("jumps O yp and down" + Oupmoves + " DD  "+ Odownmoves);
 
         if (board[row][col] == 2){
             return Oupmoves.concat(Odownmoves);
@@ -140,7 +140,8 @@ function checkForJumps(board, row, col){
             return Oupmoves;
         } else if(board[row][col] == 3){
             console.log("RETURNING XupMoves " + Xupmoves);
-            return Xupmoves;
+            console.log("CHECKING XDOWN");
+            return Xdownmoves;
         } else {
             console.log("Something bad happened with jump moves");
 
@@ -150,8 +151,8 @@ function checkForJumps(board, row, col){
 //Get's allpieces of a given player or both.
 function getPieces(player,board){
     var pieces = [];
-    for(row = 0; row < 7; row++){
-        for(col = 0; col < 7; col++){
+    for(row = 0; row < 8; row++){
+        for(col = 0; col < 8; col++){
             if (board[row][col] > 0) {
                 pieces.push([board[row][col], row, col])
             }
@@ -233,15 +234,15 @@ function checkForMoves(board, row, col){
 
 //Checks rows to coronate.
 function checkForKings(board) {
-    for (let piece in board[7]) {
-        if (piece == 1) {
-            piece = 2;
+    for (var i= 0; i < 8; i++) {
+        if (board[7][i] == 1) {
+
         }
     }
 
-    for (let piece in board[0]) {
-        if (piece == 3) {
-            piece = 4;
+    for (var x = 0; x < 8; x++) {
+        if (board[0][x] == 3) {
+            board[0][x] = 4;
         }
     }
     return board;
@@ -280,9 +281,8 @@ function movevalidator(gameobj, movereq) {
         d++;
         if(jumpcoords.length > 0 && jumpcoords != undefined) {
             jumpflag = true;
-            for (var i = 0; i < jumpcoords.length; i++) {
-
-                if (equalmoves(jumpcoords[i], newpos) == true) {
+            for (var z = 0; z < jumpcoords.length; z++) {
+                if (equalmoves(jumpcoords[z], newpos) == true) {
                     return true;
                 }
             }

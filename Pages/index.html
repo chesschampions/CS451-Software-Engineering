@@ -183,8 +183,8 @@ window.setInterval(renderBoard(), 500);
 //Convert a board to a graphical representation.
 function renderBoard(){
     console.log("HEY")
-    for(var row = 0; row < 7; row++){
-        for(var col = 0; col< 7; col++){
+    for(var row = 0; row < 8; row++){
+        for(var col = 0; col< 8; col++){
             var id = row.toString() + col.toString();
             console.log(id);
             if      (game.boardstate[row][col] == 0){document.getElementById(id.toString()).textContent = "";}
