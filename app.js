@@ -389,40 +389,36 @@ io.on('connection', function(socket){
 
     //Moves done through callback functions and promises.
     socket.on("moveReq", function(msg,fn){
-        if(isgame){
-        //temp value for addedmove
-         //var validmove = gameengine.movevalidator(msg);
-        console.log("Recived Move Request");
-        game = openSession(roomid.toString());
-        var movestatus =movevalidator(game,msg);
-        if(movestatus==0 || movestatus==4){
-            game = makeMove(game,msg);
-            console.log("sending move res");
-            if(movestatus == 4){
-                game.curPlayer = msg[0];
-                io.in(roomid.toString()).emit("updateBoard", [game.boardstate,game.curPlayer]);
-                socket.emit("clientError","You have a second jump!");
-            } else {
-                io.in(roomid.toString()).emit("updateBoard", [game.boardstate,game.curPlayer]);
-            }
+        if(isgame && msg[0] == game.curPlayer) {
+            //temp value for addedmove
+            //var validmove = gameengine.movevalidator(msg);
+            console.log("Recived Move Request");
+            game = openSession(roomid.toString());
+                var movestatus = movevalidator(game, msg);
+                if (movestatus == 0 || movestatus == 4) {
+                    game = makeMove(game, msg);
+                    console.log("sending move res");
+                    if (movestatus == 4) {
+                        game.curPlayer = msg[0];
+                        io.in(roomid.toString()).emit("updateBoard", [game.boardstate, game.curPlayer]);
+                        socket.emit("clientError", "You have a second jump!");
+                    } else {
+                        io.in(roomid.toString()).emit("updateBoard", [game.boardstate, game.curPlayer]);
+                    }
 
-            saveSession(game,roomid);
-            if(checkForWin(game.curPlayer, game.boardstate))
-            {
-                io.in(roomid.toString()).emit("won", game.curPlayer);
-            }
-
-        } else if(movestatus==1){
-            socket.emit("clientError","not your turn yet");
-        } else if(movestatus==2){
-            socket.emit("clientError","You have a jump that you need to take");
-        } else if(movestatus==3){
-            socket.emit("clientError","That's not a valid move!");
-        }
-
-        }
-
-    });
+                    saveSession(game, roomid);
+                    if (checkForWin(game.curPlayer, game.boardstate)) {
+                        io.in(roomid.toString()).emit("won", game.curPlayer);
+                    }
+                }
+                } else if (movestatus == 1) {
+                    socket.emit("clientError", "not your turn yet");
+                } else if (movestatus == 2) {
+                    socket.emit("clientError", "You have a jump that you need to take");
+                } else if (movestatus == 3) {
+                    socket.emit("clientError", "That's not a valid move!");
+                }
+        });
 
     //Disconnection Handler
     //Save game state in file
