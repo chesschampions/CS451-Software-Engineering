@@ -122,7 +122,7 @@ socket.on("opponentDC", function(msg){
     });
 
 // listens for error messages
-socket.on("error", function(msg){
+socket.on("clientError", function(msg){
     alert(msg);
     });
 
@@ -156,7 +156,7 @@ socket.on("updateBoard", function(msg){
 // listens for the game id
 socket.on("gid", function(msg){
     document.getElementById("gid").innerHTML = "Your room ID is: " + msg;
-   });
+});
 
 
 function hideSetup()
@@ -182,6 +182,8 @@ function startGame(hosting)
     hideSetup();
 }
 
+
+//GUI CODE:
 //globals
 
 var board = game.boardstate;
@@ -192,8 +194,6 @@ var lastHighlightedMoves = [];
 var currentlySelectedPiece;
 
 function reply_click(clicked_id) {
-    var canMove = true;
-
     var origrow = parseInt(clicked_id);
     row = origrow < 10 ? 0 : Math.floor(origrow / 10);
     var origcolumn = parseInt(clicked_id);
@@ -307,7 +307,8 @@ function movePiece(clickedSquare, row, column)
     currentlySelectedPiece.textContent = "";
     clickedPieceID = currentlySelectedPiece.id;
     var row1 = parseInt(clickedPieceID);
-    row1 = row1 < 10? 0 : Math.floor(row1 / 10);
+    row1 = row1 < 10 ? 0 : Math.floor(row1 / 10);
+
     var column1 = parseInt(clickedPieceID);
     column1 = column1 % 10;
     board[row][column] = board[row1][column1];
