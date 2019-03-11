@@ -179,8 +179,8 @@ function startGame(hosting)
         io.emit("gameReq", -1);
     }else
     {
-        gameID = prompt("please enter the ID of the game that you are joining");
-        io.emit("gameReq", gameID);
+        var gameID = prompt("please enter the ID of the game that you are joining");
+        io.emit("gameReq", parseInt(gameID));
     }
     
     hideSetup();
