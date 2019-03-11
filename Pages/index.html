@@ -113,13 +113,13 @@ function startGame(hosting)
         gameID = prompt("please enter the ID of the game that you are joining");
         io.emit("gameReq", gameID);
     }
-
+    
     hideSetup();
 }
 
-function movePiece()
+function movePiece(mRequest)
 {
-    io.emit("moveReq",["XO",  
+    io.emit("moveReq",mRequest);
 }
 
 
