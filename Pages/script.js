@@ -156,8 +156,6 @@ function checkG(y, x)
 		if(type==1||type==2){
 			//checks forward moves
 			if(x>0&&y<7){
-				//System.out.print(board[1][2]);
-				//System.out.print(y+1);
 				if(board[y+1][x-1]==0){
 					moves[holder]=(y+1)*10+x-1;
 					holder+=1;
@@ -202,7 +200,7 @@ function checkG(y, x)
 				//checks backwards moves for kingpieces
 				if(x>0&&y>0){
 					if(board[y+1][x-1]==0){
-						moves[holder]=(y-1)*10+x-1;
+						moves[holder]=(y+1)*10+x-1;
 						holder+=1;
 					}
 				}
