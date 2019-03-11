@@ -90,12 +90,13 @@ function checkForMandatoryMoves(player,board){
     console.log("ALL PIECES " + player);
     for(var i=0; i<allPieces.length; i++){
         var piece = allPieces[i];
-        console.log("PIECE TEST" + piece[1] + piece[2])
+        console.log("PIECE TEST" + piece[1] + " " + piece[2]);
         mandatoryMoves.concat(checkForJumps(board,piece[1],piece[2]));
     }
     console.log("MANDATORY " + mandatoryMoves);
     return mandatoryMoves;
 }
+
 //Checks a ring of size 2 diagonally for any jumps.
 //Returns a list of possible jumps for a given piece
 function checkForJumps(board, row, col){
@@ -142,9 +143,7 @@ function getPieces(player,board){
     var pieces = [];
     for(row = 0; row < 7; row++){
         for(col = 0; col < 7; col++){
-            if(col > 0){
                 pieces.push([board[row][col],row,col])
-            }
         }
     }
     if(player == "both"){
