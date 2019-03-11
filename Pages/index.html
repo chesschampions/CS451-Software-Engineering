@@ -28,8 +28,8 @@
 <div id="setup">
 <h1>Hi welcome to the checkers game</h1>
 <p>Do you want to host or join a game?</p>
-    <button onclick="hostGame()">Host Game</button>
-    <button onclick="joinGame()">Join Game</button>
+    <button onclick="startGame('host')">Host Game</button>
+    <button onclick="startGame('join')">Join Game</button>
 </div>
 
 <p id="gid"></p>
@@ -61,6 +61,7 @@ socket.on("error", function(msg){
 
 // fresh board
 var game = {
+    Player: "N"
     boardstate: 
     [
         [1,0,1,0,1,0,1,0],
@@ -72,11 +73,25 @@ var game = {
         [-1,0,-1,0,-1,0,-1,0],
         [0,-1,0,-1,0,-1,0,-1]
     ]};
-        
+
+// who am I
+socket.on("playerName", function(msg)
+{
+    game.Player = msg;
+}
+
+
 // loads checkers board
 socket.on("updateBoard", function(msg){
-    game = msg;
+    game.board = msg;
+    // run josh's thing that renders the board
     });
+    
+// listens for the game id
+socket.on("gid", function(msg){
+    document.getElementByIdidd("gid").innerHTML = "Your room ID is: " + msg;
+   });
+
 
 function hideSetup()
 {
@@ -89,38 +104,26 @@ function gameOver()
     alert("game over");
 }
 
-function hostGame()
+function startGame(hosting)
 {
-    var socket = io();
+    if (hosting == "host"){
+        io.emit("gameReq", -1);
+    }else
+    {
+        gameID = prompt("please enter the ID of the game that you are joining");
+        io.emit("gameReq", gameID);
+    }
+
     hideSetup();
-    // communicate with server and generate game id for the user
-    io.emit("gameReq", -1);
-    
-    // listens for the game id
-    socket.on("gid", function(msg){
-        document.getElementById("gid").innerHTML = "Your room ID is: " + msg;
-        });
-
-    // load the checker board graphics 
-
-    // clean up after the game is over
-    // gameOver();
-    
 }
 
-function joinGame()
-{  
-    var socket = io();
-    hideSetup();
-
-    var gameID = prompt("Please enter the Game ID that you are joining");
-    io.emit("gameReq", parseInt(gameID));
-    
-    // load the checkers board graphics
-
-    // clean up after the game is over 
-    // gameOver();
+function movePiece()
+{
+    io.emit("moveReq",["XO",  
 }
+
+
+
 </script>
 
 </body>
