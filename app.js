@@ -3,7 +3,6 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 const fs = require('fs');
-var gameengine = require('./gameengine');
 //Simple way to do sessionIDs could also try to allow custom ID's from users, need extra validation.
 //This will probably need to be a singleton so that we don't get any weird issues if we keep this.
 var sessionCount = 0;
@@ -45,6 +44,57 @@ http.listen(3000, function(){
 //  WE need to make sure that users making custom named sessions don't stomp all over each other.
 // Just check DIR same as searching for a session to see if it exists. (Can replace dir searching function as well in gameReq
 
+//move a 2d array of xys of the form [[origrow,origcol],[newrow, newcol]]
+//returns the new gameobj
+function makeMove(gameobj,movereq){
+    var nextmove = [[movereq[1],movereq[2]], [movereq[3],movereq[4]]];
+    var boardchar = gameobj.boardstate[nextmove[0][0]][nextmove[0][1]];
+
+    gameobj.boardstate[nextmove[0][0]][nextmove[0][1]] = 0;
+    gameobj.boardstate[nextmove[1][0]][nextmove[1][1]] = boardchar;
+    if (gameobj.curPlayer === "X") {gameobj.curPlayer = "O";} else {gameobj.curPlayer = "X";}
+    return gameobj;
+}
+
+
+let gameEngine = class gameengine {
+    movevalidator(gameobj, movereq) {
+
+    }
+
+
+    mandatoryJump(player){
+        var allPieces = document.getElementsByClassName("black");
+        var myPieces = [];
+
+        if(player === "O"){
+            for(i = 0; i<allPieces.length; i++){
+                if(allPieces[i].textContent === "O")
+                    myPieces.push(allPieces[i]);
+            }
+        } else {
+            for(i = 0; i<allPieces.length; i++){
+                if(allPieces[i].textContent === "X")
+                    myPieces.push(allPieces[i]);
+            }
+        }
+
+        for(i = 0; i<myPieces.length; i++){
+            var pieceID = myPieces[i].id;
+            var row = parseInt(pieceID);
+            row = row < 10? 0 : Math.floor(row / 10);
+            var column = parseInt(pieceID);
+            column = column % 10;
+            var listOfMoves = checkR(row, column);
+            if(listOfMoves.length !== 0){
+                alert("has mandatory move is true");
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
 //TODO: Add try catch blocks to open and save sessions.
 function openSession(gamefilename,roomid){
     console.log("opening session " + roomid);
@@ -68,7 +118,7 @@ io.on('connection', function(socket){
     var isgame = false;
 
     var game = {
-        curPlayer : "X",
+        curPlayer : "O",
         boardstate : [
                 [1,0,1,0,1,0,1,0],
                 [0,1,0,1,0,1,0,1],
@@ -126,13 +176,20 @@ io.on('connection', function(socket){
         }
     });
 
-    socket.on("moveReq", function(msg){
+    //Moves done through callback functions and promises.
+    socket.on("moveReq", function(msg,fn){
         //temp value for addedmove
          //var validmove = gameengine.movevalidator(msg);
+        console.log("Recived Move Request");
         if(true){
-            game = gameengine.makeMove(game,msg);
+            game = makeMove(game,msg);
+            console.log("sending move res");
             socket.to(roomid).emit("updateBoard", [game.curPlayer, game.boardstate]);
+            fn(true);
+            //socket.emit("moveRes",true);
         } else {
+            fn(false);
+            //socket.emit("moveRes",false);
             socket.emit("clientError","bad move");
         }
     });

@@ -149,8 +149,9 @@ socket.on("playerName", function(msg)
 
 // loads checkers board
 socket.on("updateBoard", function(msg){
-    game.board = msg;
-    // run josh's thing that renders the board
+    game.board = msg[1];
+    game.Player = msg[0];
+    document.getElementById("currentTurn").innerHTML = "It's currently player " + game.Player + "'s turn";
     });
     
 // listens for the game id
@@ -163,6 +164,7 @@ function hideSetup()
 {
     document.getElementById("setup").style.display = "none";
     document.getElementById("header").innerHTML = "Checkers game team7";
+    document.getElementById("currentTurn").innerHTML = "It's currently player " + game.Player + "'s turn";
 }
 
 function gameOver()
@@ -192,15 +194,14 @@ var player = game.Player;
 var lastHighlightedMoves = [];
 
 var currentlySelectedPiece;
-
+var movingPiece = [0,0];
 function reply_click(clicked_id) {
     var origrow = parseInt(clicked_id);
-    row = origrow < 10 ? 0 : Math.floor(origrow / 10);
+    var row = origrow < 10 ? 0 : Math.floor(origrow / 10);
     var origcolumn = parseInt(clicked_id);
-    column = origcolumn % 10;
+    var column = origcolumn % 10;
     var listOfMoves = [];
     var clickedSquare = document.getElementById(clicked_id);
-    var movereq = [player, origrow, origcolumn, row, column];
 
     if (clickedSquare.textContent === "") {
         /*if(hasMandatory(currentlySelectedPiece.textContent)){
@@ -212,22 +213,25 @@ function reply_click(clicked_id) {
                 }
             }
         } else */
+        var movereq = [player, row, column, movingPiece[0], movingPiece[1]];
 
-        socket.emit("moveReq", movereq, "moveRes", (res) => {
+        socket.emit("moveReq", movereq, function(res) {
             if (clickedSquare.className === "green" && res === true)
             //Move Piece Changes GUI.
                 movePiece(clickedSquare, row, column);
-        });
-    currentlySelectedPiece = null;
-    clearLastHighlightedMoves(); }
-
-    else {
+            currentlySelectedPiece = null;
+            clearLastHighlightedMoves();});
+    } else {
     currentlySelectedPiece = clickedSquare;
+
     listOfMoves = checkR(row, column);
-    if(listOfMoves === ""){
+    movingPiece = [row,column];
+    if(listOfMoves == ""){
         listOfMoves = checkG(row, column);
     }
+
     clearLastHighlightedMoves();
+
     for (i = 0; i<listOfMoves.length; i++){
         var temp = listOfMoves[i].toString();
         document.getElementById(temp).className = "green";
