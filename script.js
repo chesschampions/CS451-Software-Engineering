@@ -18,6 +18,10 @@ var currentlySelectedPiece;
 
 function reply_click(clicked_id)
 {
+	var canMove = false;
+	var movereq = [player, row, column];
+	io.emit("moveReq",);
+
     var row = parseInt(clicked_id);
     row = row < 10? 0 : Math.floor(row / 10);
     var column = parseInt(clicked_id);
@@ -25,8 +29,7 @@ function reply_click(clicked_id)
     var listOfMoves = [];
     var clickedSquare = document.getElementById(clicked_id);
     
-    if(clickedSquare.textContent == "") {
-
+    if(clickedSquare.textContent === "") {
     	/*if(hasMandatory(currentlySelectedPiece.textContent)){
     		if(isEatingPiece(clicked_id, currentlySelectedPiece.textContent)){
     			if(clickedSquare.className == "green"){
@@ -36,7 +39,7 @@ function reply_click(clicked_id)
     			}
     		}
     	} else */
-    	if(clickedSquare.className == "green"){
+    	if(clickedSquare.className === "green" && canMove === true)
     		movePiece(clickedSquare, row, column);
     	}
     	

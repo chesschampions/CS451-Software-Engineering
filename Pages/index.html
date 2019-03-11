@@ -2,8 +2,12 @@
 <html>
 <head>
 <title>Checkers Game team7</title>
+<link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
+<script src="script.js"></script>
+
 <center>
 
 <h1 id="header"></h1>
@@ -18,8 +22,90 @@
 <p id="gid"></p>
 
 <div class="container">
-  <img id="checkersboard">
-    <div id="textblock" class="text-block"> 
+    <div class="chessboard">
+        <!-- 1st -->
+        <div class="black" id="00" onClick="reply_click(this.id)">O</div>
+        <div class="white" id="01"></div>
+        <div class="black" id="02" onClick="reply_click(this.id)">O</div>
+        <div class="white" id="03"></div>
+        <div class="black" id="04" onClick="reply_click(this.id)">O</div>
+        <div class="white" id="05"></div>
+        <div class="black" id="06" onClick="reply_click(this.id)">O</div>
+        <div class="white" id="07"></div>
+
+        <!-- 2nd -->
+        <div class="white" id="10"></div>
+        <div class="black" id="11" onClick="reply_click(this.id)">O</div>
+        <div class="white" id="12"></div>
+        <div class="black" id="13" onClick="reply_click(this.id)">O</div>
+        <div class="white" id="14"></div>
+        <div class="black" id="15" onClick="reply_click(this.id)">O</div>
+        <div class="white" id="16"></div>
+        <div class="black" id="17" onClick="reply_click(this.id)">O</div>
+
+        <!-- 3rd -->
+        <div class="black" id="20" onClick="reply_click(this.id)">O</div>
+        <div class="white" id="21"></div>
+        <div class="black" id="22" onClick="reply_click(this.id)">O</div>
+        <div class="white" id="23"></div>
+        <div class="black" id="24" onClick="reply_click(this.id)">O</div>
+        <div class="white" id="25"></div>
+        <div class="black" id="26" onClick="reply_click(this.id)">O</div>
+        <div class="white" id="27"></div>
+
+        <!-- 4th -->
+        <div class="white" id="30"></div>
+        <div class="black" id="31" onClick="reply_click(this.id)"></div>
+        <div class="white" id="32"></div>
+        <div class="black" id="33" onClick="reply_click(this.id)"></div>
+        <div class="white" id="34"></div>
+        <div class="black" id="35" onClick="reply_click(this.id)"></div>
+        <div class="white" id="36"></div>
+        <div class="black" id="37" onClick="reply_click(this.id)"></div>
+
+        <!-- 5th -->
+        <div class="black" id="40" onClick="reply_click(this.id)"></div>
+        <div class="white" id="41"></div>
+        <div class="black" id="42" onClick="reply_click(this.id)"></div>
+        <div class="white" id="43"></div>
+        <div class="black" id="44" onClick="reply_click(this.id)"></div>
+        <div class="white" id="45"></div>
+        <div class="black" id="46" onClick="reply_click(this.id)"></div>
+        <div class="white" id="47"></div>
+
+        <!-- 6th -->
+        <div class="white" id="50"></div>
+        <div class="black" id="51" onClick="reply_click(this.id)">X</div>
+        <div class="white" id="52"></div>
+        <div class="black" id="53" onClick="reply_click(this.id)">X</div>
+        <div class="white" id="54"></div>
+        <div class="black" id="55" onClick="reply_click(this.id)">X</div>
+        <div class="white" id="56"></div>
+        <div class="black" id="57" onClick="reply_click(this.id)">X</div>
+
+        <!-- 7th -->
+        <div class="black" id="60" onClick="reply_click(this.id)">X</div>
+        <div class="white" id="61"></div>
+        <div class="black" id="62" onClick="reply_click(this.id)">X</div>
+        <div class="white" id="63"></div>
+        <div class="black" id="64" onClick="reply_click(this.id)">X</div>
+        <div class="white" id="65"></div>
+        <div class="black" id="66" onClick="reply_click(this.id)">X</div>
+        <div class="white" id="67"></div>
+
+        <!-- 8th -->
+        <div class="white" id="70"></div>
+        <div class="black" id="71" onClick="reply_click(this.id)">X</div>
+        <div class="white" id="72"></div>
+        <div class="black" id="73" onClick="reply_click(this.id)">X</div>
+        <div class="white" id="74"></div>
+        <div class="black" id="75" onClick="reply_click(this.id)">X</div>
+        <div class="white" id="76"></div>
+        <div class="black" id="77" onClick="reply_click(this.id)">X</div>
+    </div>
+
+    <script src="script.js"></script>
+    <div id="textblock" class="text-block">
         <p id="hostgid"></p>
     </div>
 </div>
@@ -27,6 +113,7 @@
     <button>Back</button>
 </div>
 </center>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
 var socket = io();
