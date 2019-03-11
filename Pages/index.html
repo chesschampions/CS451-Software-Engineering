@@ -11,6 +11,8 @@
 
 <h1 id="header"></h1>
 
+<h1 id="currentTurn"></h1>
+
 <div id="setup">
 <h1>Hi welcome to the checkers game</h1>
 <p>Do you want to host or join a game?</p>
@@ -143,7 +145,8 @@ socket.on("playerName", function(msg)
 
 // loads checkers board
 socket.on("updateBoard", function(msg){
-    game.board = msg;
+    game.board = msg[0];
+    document.getElementById("currentTurn").innerHTML = "It's currently player " + msg[1] + "'s turn"; 
     // run josh's thing that renders the board
     });
     
