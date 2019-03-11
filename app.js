@@ -87,11 +87,14 @@ function isO(piece){ return piece == 1 || piece == 2;}
 function checkForMandatoryMoves(player,board){
     var mandatoryMoves = [];
     var allPieces =  getPieces(player,board);
-    console.log("ALL PIECES " + player);
-    for(var i=0; i<allPieces.length; i++){
+    console.log("ALL PIECES " + allPieces[0]);
+    for(var i=0; i<allPieces.length; i++) {
         var piece = allPieces[i];
-        console.log("PIECE TEST" + piece[1] + " " + piece[2]);
-        mandatoryMoves.concat(checkForJumps(board,piece[1],piece[2]));
+        console.log("PIECE TEST " + piece[1] + " " + piece[2]);
+        console.log("CHECKING FOR JUMPs " + checkForJumps(board, piece[1], piece[2]) + " " );
+        if (checkForJumps(board, piece[1], piece[2]).length == 1){
+            mandatoryMoves.concat(checkForJumps(board, piece[1], piece[2]));
+        }
     }
     console.log("MANDATORY " + mandatoryMoves);
     return mandatoryMoves;
@@ -118,10 +121,10 @@ function checkForJumps(board, row, col){
         var upLeft    = [];
 
         //Need to change so it doesn't get stuck on it's own pieces.
-        if(row < maxRow && col < maxCol && board[row+2][col+2] == 0 && board[row+1][col+1] != 0) {upRight   = [row+2,col+2]; isO(board[row+2][col+2]) ? Oupmoves.push(upRight)  : Xupmoves.push(upRight);}
-        if(row > minRow && col < maxCol && board[row-2][col+2] == 0 && board[row-1][col+1] != 0) {downRight = [row-2,col+2]; isO(board[row-2][col+2]) ? Oupmoves.push(downRight): Xupmoves.push(downRight);}
-        if(row < maxRow && col > minCol && board[row+2][col-2] == 0 && board[row+1][col-1] != 0) {upLeft    = [row+2,col-2]; isO(board[row+2][col-2]) ? Oupmoves.push(upLeft)   : Xupmoves.push(upLeft);}
-        if(row > minRow && col > minCol && board[row-2][col-2] == 0 && board[row-1][col-1] != 0) {downLeft  = [row-2,col-2]; isO(board[row-2][col-2]) ? Oupmoves.push(downLeft) : Xupmoves.push(downLeft);}
+        if(row < maxRow && col < maxCol && board[row+2][col+2] == 0 && board[row+1][col+1] != 0) {upRight   = [row+2,col+2]; if(isO(board[row][col])) { if(!(isO(board[row+1][col+1]))){Oupmoves.push(upRight);} } else {    if(isO(board[row+1][col+1])){Xupmoves.push(upRight);}}}
+        if(row > minRow && col < maxCol && board[row-2][col+2] == 0 && board[row-1][col+1] != 0) {downRight = [row-2,col+2]; if(isO(board[row][col])) { if(!(isO(board[row-1][col+1]))){Odownmoves.push(upRight);} } else {  if(isO(board[row-1][col+1])){Xdownmoves.push(downRight);}}}
+        if(row < maxRow && col > minCol && board[row+2][col-2] == 0 && board[row+1][col-1] != 0) {upLeft    = [row+2,col-2]; if(isO(board[row][col])) { if(!(isO(board[row+1][col-1]))){Oupmoves.push(upRight);} } else {    if(isO(board[row+1][col-1])){Xupmoves.push(upLeft);}}}
+        if(row > minRow && col > minCol && board[row-2][col-2] == 0 && board[row-1][col-1] != 0) {downLeft  = [row-2,col-2]; if(isO(board[row][col])) { if(!(isO(board[row-1][col-1]))){Odownmoves.push(upRight);} } else {  if(isO(board[row-1][col-1])){Xdownmoves.push(downLeft);}}}
 
         console.log("jumps Xup and down " + Xupmoves + " " + Xdownmoves);
         console.log("jumps O yp and down" + Oupmoves + " "+ Odownmoves);
@@ -130,9 +133,9 @@ function checkForJumps(board, row, col){
         } else if(board[row][col] == 4 ){
             return Xupmoves.concat(Xdownmoves);
         } else if(board[row][col]==1){
-            return Xdownmoves;
+            return Odownmoves;
         } else if(board[row][col] == 3){
-            return Oupmoves;
+            return Xupmoves;
         } else {
             console.log("Something bad happened with jump moves");
         }
@@ -143,12 +146,14 @@ function getPieces(player,board){
     var pieces = [];
     for(row = 0; row < 7; row++){
         for(col = 0; col < 7; col++){
-                pieces.push([board[row][col],row,col])
+            if (board[row][col] > 0) {
+                pieces.push([board[row][col], row, col])
+            }
         }
     }
     if(player == "both"){
         return pieces;
-    } else if(player == "X"){
+    } else if(player == "O"){
         var opieces = [];
         for(i=0; i<pieces.length; i++){
             if(pieces[i][0] < 3){
@@ -157,7 +162,7 @@ function getPieces(player,board){
         }
         return opieces;
 
-    } else if(player == "O"){
+    } else if(player == "X"){
         var xpieces = [];
         for(i=0; i<pieces.length; i++){
             if(pieces[i][0] >= 3){
