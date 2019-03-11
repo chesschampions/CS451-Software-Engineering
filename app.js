@@ -2,6 +2,7 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 const fs = require('fs');
+
 //Simple way to do sessionIDs could also try to allow custom ID's from users, need extra validation.
 //This will probably need to be a singleton so that we don't get any weird issues if we keep this.
 var sessionCount = 0;
@@ -51,20 +52,10 @@ function saveSession(boardObj, roomid){
 }
 
 io.on('connection', function(socket){
-    console.log("user connected " + checker);
+    console.log("user connected " + sessionCount);
     //Fresh board is generated.
-    var game = {
-        boardstate :
-            [
-                [1,0,1,0,1,0,1,0],
-                [0,1,0,1,0,1,0,1],
-                [1,0,1,0,1,0,1,0],
-                [0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0],
-                [0,-1,0,-1,0,-1,0,-1],
-                [-1,0,-1,0,-1,0,-1,0],
-                [0,-1,0,-1,0,-1,0,-1]
-            ]};
+
+    var game = 0;
     var roomid = -2;
 
     socket.on("gameReq", function(msg){
@@ -73,11 +64,10 @@ io.on('connection', function(socket){
             io.join(roomid);
             saveSession(game,roomid);
             sessionCount++;
-
-        } else if (msg >= 0) {
+        }
+        else if (msg >= 0) {
             //Check for session
             const sessions= fs.readdir('Session');
-
             for (let session in sessions){
                 if(parseInt(session) === msg ) {
                     roomid = parseInt(session);
@@ -87,13 +77,13 @@ io.on('connection', function(socket){
             }
             //No room found send error to client.
             if (roomid === -2) { io.emit("Didn't work bruh.")}
-        } else {
+        }
+        else {
             console.log("bad message received.");
             //error to client.
             io.emit("bad message received");
         }
     });
-
     socket.on("moveReq", function(msg){
         //temp value for addedmove
         var validmove = true;
