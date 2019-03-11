@@ -1,0 +1,8 @@
+{
+  "name": "CS451-Software-Engineering",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.16.4",
+    "socket.io": "latest"
+  }
+}
