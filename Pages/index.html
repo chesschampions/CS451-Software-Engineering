@@ -106,6 +106,8 @@
         <p id="hostgid"></p>
     </div>
 </div>
+    <p id="currentTurn"></p>
+    <p id="player"></p>
 <div>
     <button>Back</button>
 </div>
@@ -114,6 +116,10 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
 var socket = io();
+
+socket.on("won", function(msg){
+   alert(msg + "WON THE GAME!")
+});
 
 // listens for when opponent left the game
 socket.on("opponentDC", function(msg){
@@ -128,6 +134,7 @@ socket.on("clientError", function(msg){
 
 // fresh board
 var game = {
+    curPlayer : "O",
     Player: "N",
     boardstate: [
             [1,0,1,0,1,0,1,0],
@@ -144,16 +151,18 @@ var game = {
 socket.on("playerName", function(msg)
 {
     game.Player = msg;
+    document.getElementById("player").innerHTML = "You are " + game.Player;
 });
 
 socket.on("hello",function(msg){console.log("Hello");});
 
 // loads checkers board
 socket.on("updateBoard", function(msg){
-    game.boardstate = msg;
+    game.boardstate = msg[0];
     renderBoard();
     //TODO: CURTURN
-    //document.getElementById("currentTurn").innerHTML = "It's currently player " + game.Player + "'s turn";
+    game.curPlayer = msg[1];
+    document.getElementById("currentTurn").innerHTML = "It's currently player " + game.curPlayer + "'s turn";
     });
     
 // listens for the game id
@@ -166,7 +175,7 @@ function hideSetup()
 {
     document.getElementById("setup").style.display = "none";
     document.getElementById("header").innerHTML = "Checkers game team7";
-    document.getElementById("currentTurn").innerHTML = "It's currently player " + game.Player + "'s turn";
+    document.getElementById("currentTurn").innerHTML = "Noone is in your lobby yet invite a friend.";
 }
 
 window.setInterval(renderBoard(), 500);

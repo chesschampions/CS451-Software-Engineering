@@ -56,27 +56,28 @@ function makeMove(gameobj,movereq){
     var boardchar = gameobj.boardstate[nextmove[0][0]][nextmove[0][1]];
     gameobj.boardstate[nextmove[0][0]][nextmove[0][1]] = 0;
     gameobj.boardstate[nextmove[1][0]][nextmove[1][1]] = boardchar;
+
     //Check for jumps.
     //up
     if(nextmove[0][0] > nextmove[1][0]&& nextmove[0][0] - nextmove[1][0] == 2){
         //right
-        if(nextmove[0][1] > nextmove[1][1]){ gameobj.boardstate[nextmode[0][0]-1][nextmove[0][1]-1] = 0; }
-        else{ gameobj.boardstate[nextmode[0][0]-1][nextmove[1][1]-1] = 0; }
+        if(nextmove[0][1] > nextmove[1][1]){
+            gameobj.boardstate[nextmode[0][0]-1][nextmove[0][1]-1] = 0; }
+        else{
+            gameobj.boardstate[nextmode[0][0]-1][nextmove[1][1]-1] = 0; }
 
     } // down
     else if(nextmove[0][0] < nextmove[1][0]&& nextmove[1][0] - nextmove[1][0] == 2){
-        if(nextmove[0][1] > nextmove[1][1]){gameobj.boardstate[nextmode[1][0]-1][nextmove[0][1]-1] = 0; }
-        else{gameobj.boardstate[nextmode[1][0]-1][nextmove[1][1]-1] = 0; }
+        if(nextmove[0][1] > nextmove[1][1]){
+            gameobj.boardstate[nextmode[1][0]-1][nextmove[0][1]-1] = 0;
+        }
+        else{
+            gameobj.boardstate[nextmode[1][0]-1][nextmove[1][1]-1] = 0;
+        }
     }
     gameobj.boardstate = checkForKings(gameobj.boardstate);
     if (gameobj.curPlayer == "X") {gameobj.curPlayer = "O";} else {gameobj.curPlayer = "X";}
     return gameobj;
-}
-
-function convertHashedMove(move){
-    var row = move < 10? 0 : Math.floor(move/ 10);
-    var col = move % 10;
-    return [row,col];
 }
 
 //Checking for O pieces
@@ -136,7 +137,7 @@ function checkForJumps(board, row, col){
         } else if(board[row][col]==1){
             console.log("RETURNING ODOWN " + Odownmoves);
             console.log("CHECKING OUP " + Oupmoves);
-            return Odupmoves;
+            return Oupmoves;
         } else if(board[row][col] == 3){
             console.log("RETURNING XupMoves " + Xupmoves);
             return Xupmoves;
@@ -165,6 +166,7 @@ function getPieces(player,board){
                 opieces.push((pieces[i]));
             }
         }
+        console.log("OPIECES" + opieces)
         return opieces;
 
     } else if(player == "X"){
@@ -216,6 +218,7 @@ function checkForMoves(board, row, col){
     if(row > minRow && col > minCol && board[row-1][col-1] == 0){downLeft  = [row-1,col-1]; downmoves.push(downLeft);}
 
     console.log("MOVES: " + upmoves.concat(downmoves)[0]);
+
     if (board[row][col] == 2 || board[row][col] == 4 ){
         return upmoves.concat(downmoves);
     } else if(board[row][col]==1){
@@ -245,7 +248,7 @@ function checkForKings(board) {
 }
 
 //TODO: Move validation
-function movevalidator(gameobj, movereq, function()) {
+function movevalidator(gameobj, movereq) {
     console.log(movereq[0]);
     console.log(gameobj.curPlayer);
     if(gameobj.curPlayer != movereq[0]){return false;}
@@ -262,20 +265,23 @@ function movevalidator(gameobj, movereq, function()) {
     console.log("Done with mandatory moves");
     var otherMoves = checkForMoves(gameobj.boardstate, origpos[0], origpos[1]);
 
-    var jumpflag = false;
+    let jumpflag = false;
 //    var mandatoryMoves = [];
-    var allPieces =  getPieces(player,board);
+    let allPieces =  getPieces(gameobj.curPlayer,board);
     console.log("ALL PIECES " + allPieces);
-
-
+    var d = 0;
     for(var i=0; i<allPieces.length; i++) {
         var piece = allPieces[i];
         var jumpcoords = checkForJumps(board, piece[1], piece[2]);
+
         console.log("PIECE TEST " + piece[1] + " " + piece[2]);
         console.log("CHECKING FOR JUMPs " + jumpcoords[0] + " " );
+        if( d == 30) {break;}
+        d++;
         if(jumpcoords.length > 0 && jumpcoords != undefined) {
             jumpflag = true;
             for (var i = 0; i < jumpcoords.length; i++) {
+
                 if (equalmoves(jumpcoords[i], newpos) == true) {
                     return true;
                 }
@@ -379,7 +385,7 @@ io.on('connection', function(socket){
                         console.log(openSession(roomid));
                         game = openSession(roomid);
 
-                        io.in(roomid.toString()).emit("updateBoard",game.boardstate);
+                        io.in(roomid.toString()).emit("updateBoard",[game.boardstate,game.curPlayer]);
                         isgame = true;
                         console.log("setup session");
                     }
@@ -404,11 +410,14 @@ io.on('connection', function(socket){
         if(movevalidator(game,msg)){
             game = makeMove(game,msg);
             console.log("sending move res");
-            io.in(roomid.toString()).emit("updateBoard", game.boardstate);
+            io.in(roomid.toString()).emit("updateBoard", [game.boardstate,game.curPlayer]);
             saveSession(game,roomid);
-            //fn(true);
+            if(checkForWin(game.curPlayer, game.boardstate))
+            {
+                io.in(roomid.toString()).emit("won", game.curPlayer);
+            }
+
         } else {
-            //fn(false);
             socket.emit("clientError","bad move");
         }}
     });
