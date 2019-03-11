@@ -57,8 +57,17 @@ function makeMove(gameobj,movereq){
     gameobj.boardstate[nextmove[0][0]][nextmove[0][1]] = 0;
     gameobj.boardstate[nextmove[1][0]][nextmove[1][1]] = boardchar;
     //Check for jumps.
-    if(nextmove[0][0] > nextmove[1][0]&& nextmove[0][0] - nextmove[1][0] == -2){gameobj.boardstate[nextmove[0][0]-1]}
-    if(nextmove[0][0] < nextmove[1][0]&& nextmove[1][0] - nextmove[1][0] == -2){}
+    //up
+    if(nextmove[0][0] > nextmove[1][0]&& nextmove[0][0] - nextmove[1][0] == 2){
+        //right
+        if(nextmove[0][1] > nextmove[1][1]){ gameobj.boardstate[nextmode[0][0]-1][nextmove[0][1]-1] = 0; }
+        else{ gameobj.boardstate[nextmode[0][0]-1][nextmove[1][1]-1] = 0; }
+
+    } // down
+    else if(nextmove[0][0] < nextmove[1][0]&& nextmove[1][0] - nextmove[1][0] == 2){
+        if(nextmove[0][1] > nextmove[1][1]){gameobj.boardstate[nextmode[1][0]-1][nextmove[0][1]-1] = 0; }
+        else{gameobj.boardstate[nextmode[1][0]-1][nextmove[1][1]-1] = 0; }
+    }
     gameobj.boardstate = checkForKings(gameobj.boardstate);
     if (gameobj.curPlayer == "X") {gameobj.curPlayer = "O";} else {gameobj.curPlayer = "X";}
     return gameobj;
@@ -78,10 +87,13 @@ function isO(piece){ return piece == 1 || piece == 2;}
 function checkForMandatoryMoves(player,board){
     var mandatoryMoves = [];
     var allPieces =  getPieces(player,board);
-    for(var i=0; i<allPieces.length; i++;){
+    console.log("ALL PIECES " + player);
+    for(var i=0; i<allPieces.length; i++){
         var piece = allPieces[i];
+        console.log("PIECE TEST" + piece[1] + piece[2])
         mandatoryMoves.concat(checkForJumps(board,piece[1],piece[2]));
     }
+    console.log("MANDATORY " + mandatoryMoves);
     return mandatoryMoves;
 }
 //Checks a ring of size 2 diagonally for any jumps.
@@ -104,11 +116,14 @@ function checkForJumps(board, row, col){
         var upRight   = [];
         var upLeft    = [];
 
-        if(row < maxRow && col < maxCol && board[row+2][col+2] != 0){upRight   = [row+2,col+2]; isO(board[row+2][col+2]) ? Oupmoves.push(upRight)  : Xupmoves.push(upRight);}
-        if(row > minRow && col < maxCol && board[row-2][col+2] != 0){downRight = [row-2,col+2]; isO(board[row-2][col+2]) ? Oupmoves.push(downRight): Xupmoves.push(downRight);}
-        if(row < maxRow && col > minCol && board[row+2][col-2] != 0){upLeft    = [row+2,col-2]; isO(board[row+2][col-2]) ? Oupmoves.push(upLeft)   : Xupmoves.push(upLeft);}
-        if(row > minRow && col > minCol && board[row-2][col-2] != 0){downLeft  = [row-2,col-2]; isO(board[row-2][col-2]) ? Oupmoves.push(downLeft) : Xupmoves.push(downLeft);}
+        //Need to change so it doesn't get stuck on it's own pieces.
+        if(row < maxRow && col < maxCol && board[row+2][col+2] == 0 && board[row+1][col+1] != 0) {upRight   = [row+2,col+2]; isO(board[row+2][col+2]) ? Oupmoves.push(upRight)  : Xupmoves.push(upRight);}
+        if(row > minRow && col < maxCol && board[row-2][col+2] == 0 && board[row-1][col+1] != 0) {downRight = [row-2,col+2]; isO(board[row-2][col+2]) ? Oupmoves.push(downRight): Xupmoves.push(downRight);}
+        if(row < maxRow && col > minCol && board[row+2][col-2] == 0 && board[row+1][col-1] != 0) {upLeft    = [row+2,col-2]; isO(board[row+2][col-2]) ? Oupmoves.push(upLeft)   : Xupmoves.push(upLeft);}
+        if(row > minRow && col > minCol && board[row-2][col-2] == 0 && board[row-1][col-1] != 0) {downLeft  = [row-2,col-2]; isO(board[row-2][col-2]) ? Oupmoves.push(downLeft) : Xupmoves.push(downLeft);}
 
+        console.log("jumps Xup and down " + Xupmoves + " " + Xdownmoves);
+        console.log("jumps O yp and down" + Oupmoves + " "+ Odownmoves);
         if (board[row][col] == 2){
             return Oupmoves.concat(Odownmoves);
         } else if(board[row][col] == 4 ){
@@ -118,15 +133,15 @@ function checkForJumps(board, row, col){
         } else if(board[row][col] == 3){
             return Oupmoves;
         } else {
-            console.out("Something bad happened with jump moves");
+            console.log("Something bad happened with jump moves");
         }
 }
 
 //Get's allpieces of a given player or both.
 function getPieces(player,board){
     var pieces = [];
-    for(let row in board){
-        for(let col in row){
+    for(row = 0; row < 7; row++){
+        for(col = 0; col < 7; col++){
             if(col > 0){
                 pieces.push([board[row][col],row,col])
             }
@@ -136,18 +151,18 @@ function getPieces(player,board){
         return pieces;
     } else if(player == "X"){
         var opieces = [];
-        for(let piece in pieces){
-            if(piece[0] < 3){
-                opieces.push(piece);
+        for(i=0; i<pieces.length; i++){
+            if(pieces[i][0] < 3){
+                opieces.push((pieces[i]));
             }
         }
         return opieces;
 
     } else if(player == "O"){
         var xpieces = [];
-        for(let piece in pieces){
-            if(piece[0] >= 3){
-                xpieces.push(piece);
+        for(i=0; i<pieces.length; i++){
+            if(pieces[i][0] >= 3){
+                xpieces.push((pieces[i]));
             }
         }
         return xpieces;
@@ -242,36 +257,6 @@ function movevalidator(gameobj, movereq) {
     }
 }
 
-function mandatoryJump(player){
-        var allPieces = document.getElementsByClassName("black");
-        var myPieces = [];
-
-        if(player === "O"){
-            for(i = 0; i<allPieces.length; i++){
-                if(allPieces[i].textContent === "O")
-                    myPieces.push(allPieces[i]);
-            }
-        } else {
-            for(i = 0; i<allPieces.length; i++){
-                if(allPieces[i].textContent === "X")
-                    myPieces.push(allPieces[i]);
-            }
-        }
-
-        for(i = 0; i<myPieces.length; i++){
-            var pieceID = myPieces[i].id;
-            var row = parseInt(pieceID);
-            row = row < 10? 0 : Math.floor(row / 10);
-            var column = parseInt(pieceID);
-            column = column % 10;
-            var listOfMoves = checkR(row, column);
-            if(listOfMoves.length !== 0){
-                alert("has mandatory move is true");
-                return true;
-            }
-        }
-        return false;
-    }
 
 //TODO: Add try catch blocks to open and save sessions.
 function openSession(roomid){
