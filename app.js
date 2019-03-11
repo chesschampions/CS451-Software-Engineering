@@ -1,3 +1,4 @@
+const express = require('express');
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -5,10 +6,13 @@ const fs = require('fs');
 //Simple way to do sessionIDs could also try to allow custom ID's from users, need extra validation.
 //This will probably need to be a singleton so that we don't get any weird issues if we keep this.
 var sessionCount = 0;
-
+app.use(express.static(__dirname + '/Pages'));
 //Serve base HTML view, no other pages are required state will only be updated though board datastruct.
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/Pages/index.html');
+    res.sendFile(__dirname + '/Pages/styles.css');
+    res.sendFile(__dirname + '/Pages/script.js');
+
 });
 
 //Set Server to listen, does some console logging.
@@ -51,7 +55,7 @@ function saveSession(boardObj, roomid){
 }
 
 io.on('connection', function(socket){
-    //console.log("user connected " + checker);
+    console.log("user connected ");
     //Fresh board is generated.
     var game = {
         curPlayer : "X",
