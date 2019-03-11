@@ -269,8 +269,10 @@ function movevalidator(gameobj, movereq) {
         var jumpcoords = checkForJumps(board, piece[1], piece[2]);
         console.log("PIECE TEST " + piece[1] + " " + piece[2]);
         console.log("CHECKING FOR JUMPs " + jumpcoords[0] + " " );
-        for(var z =0; z<jumpcoords.length; z++){
-            mandatoryMoves.push(jumpcoords[i]);
+        if (jumpcoords.length > 0) {
+            for (var z = 0; z < jumpcoords.length; z++) {
+                mandatoryMoves.push(jumpcoords[i]);
+            }
         }
     }
 
