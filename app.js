@@ -54,35 +54,39 @@ io.on('connection', function(socket){
     //console.log("user connected " + checker);
     //Fresh board is generated.
     var game = {
-        boardstate :
-            [
+        curPlayer : "X",
+        boardstate : [
                 [1,0,1,0,1,0,1,0],
                 [0,1,0,1,0,1,0,1],
                 [1,0,1,0,1,0,1,0],
                 [0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0],
-                [0,-1,0,-1,0,-1,0,-1],
-                [-1,0,-1,0,-1,0,-1,0],
-                [0,-1,0,-1,0,-1,0,-1]
+                [0,3,0,3,0,3,0,3],
+                [3,0,3,0,3,0,3,0],
+                [0,3,0,3,0,3,0,3],
             ]};
     var roomid = -2;
 
     socket.on("gameReq", function(msg){
         if(msg === -1){
+            console.log("Got a new game request");
             roomid=sessionCount;
             io.join(roomid);
+            console.log("Added session and made a new io room");
             // emits the game id back to the client
             io.emit("gid", roomid);
+            io.emit("playerName","X");
+            console.log("emitted playername and gid");
             saveSession(game,roomid);
             sessionCount++;
-
+            console.log("Session saved and incrementing counter. SESSION COUNTER =",sessionCount);
         } else if (msg >= 0) {
             //Check for session
             const sessions= fs.readdir('Session');
-
             for (let session in sessions){
                 if(parseInt(session) === msg ) {
                     roomid = parseInt(session);
+                    io.emit("playerName","O");
                     io.join(roomid);
                     openSession(game,roomid);
                 }
@@ -98,8 +102,7 @@ io.on('connection', function(socket){
 
     socket.on("moveReq", function(msg){
         //temp value for addedmove
-        var validmove = true;
-            //GameEngine.movevalidator(msg);
+        var validmove = gameengine.movevalidator(msg);
         if(validmove){
             //game.boardstate = GameEngine.makemove(game.boardstate,msg);
             io.to(roomid).emit("updateBoard", game.boardstate);
@@ -107,7 +110,6 @@ io.on('connection', function(socket){
             io.emit("error","bad move");
         }
     });
-
 
     //Disconnection Handler
     //Save game state in file
