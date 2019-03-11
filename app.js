@@ -11,8 +11,6 @@ app.use(express.static(__dirname + '/Pages'));
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/Pages/index.html');
     res.sendFile(__dirname + '/Pages/styles.css');
-    res.sendFile(__dirname + '/Pages/script.js');
-
 });
 
 //Set Server to listen, does some console logging.
@@ -41,14 +39,14 @@ http.listen(3000, function(){
 //TODO: Add try catch blocks to open and save sessions.
 function openSession(gamefilename,roomid){
     console.log("opening session " + roomid);
-    var gameObjBuff = fs.readFileSync(__dirname + "/Session/" + roomid);
+    var gameObjBuff = fs.readFile(__dirname + "/Sessions/" + roomid);
     var gameObj = JSON.parse(gameObjBuff.toString());
     return gameObj;
 }
-function saveSession(boardObj, roomid){
+function saveSession(gameObj, roomid){
     console.log("saving session " + roomid);
     var gameObjString = gameObj.toString();
-    fs.writeFile(__dirname + "/Session/" + roomid, gameObjString, function(err){
+    fs.writeFile(__dirname + "/Sessions/" + roomid, gameObjString, function(err){
         if (err) throw err;
         console.log('Saved!');
     });
@@ -57,6 +55,7 @@ function saveSession(boardObj, roomid){
 io.on('connection', function(socket){
     console.log("user connected ");
     //Fresh board is generated.
+    var isgame = false;
     var game = {
         curPlayer : "X",
         boardstate : [
@@ -75,14 +74,15 @@ io.on('connection', function(socket){
         if(msg === -1){
             console.log("Got a new game request");
             roomid=sessionCount;
-            io.join(roomid);
+            socket.join(roomid);
             console.log("Added session and made a new io room");
             // emits the game id back to the client
-            io.emit("gid", roomid);
-            io.emit("playerName","X");
+            socket.emit("gid", roomid);
+            socket.emit("playerName","X");
             console.log("emitted playername and gid");
             saveSession(game,roomid);
             sessionCount++;
+            isgame = true;
             console.log("Session saved and incrementing counter. SESSION COUNTER =",sessionCount);
         } else if (msg >= 0) {
             //Check for session
@@ -90,17 +90,18 @@ io.on('connection', function(socket){
             for (let session in sessions){
                 if(parseInt(session) === msg ) {
                     roomid = parseInt(session);
-                    io.emit("playerName","O");
-                    io.join(roomid);
+                    socket.emit("playerName","O");
+                    socket.join(roomid);
                     openSession(game,roomid);
+                    isgame = true;
                 }
             }
             //No room found send error to client.
-            if (roomid === -2) { io.emit("error", "No game found")}
+            if (roomid === -2) { socket.emit("error", "No game found")}
         } else {
             console.log("bad message received.");
             //error to client.
-            io.emit("error", "invalid game ID");
+            socket.emit("error", "invalid game ID");
         }
     });
 
@@ -111,7 +112,7 @@ io.on('connection', function(socket){
             //game.boardstate = GameEngine.makemove(game.boardstate,msg);
             io.to(roomid).emit("updateBoard", game.boardstate);
         } else {
-            io.emit("error","bad move");
+            socket.emit("error","bad move");
         }
     });
 
@@ -119,9 +120,11 @@ io.on('connection', function(socket){
     //Save game state in file
     //Send opponent disconnected message to client
     socket.on('disconnect', function(socket){
+        if(isgame){
         console.log("user disconnected, saving game");
         saveSession(game,roomid);
         console.log("sending error to other player.");
         io.to(roomid).emit("oppoentDC","The opponent left")
+        }
     });
 });

@@ -18,7 +18,7 @@ var currentlySelectedPiece;
 
 function reply_click(clicked_id)
 {
-	var canMove = false;
+	var canMove = ;
 	var movereq = [player, row, column];
 	io.emit("moveReq",);
 
