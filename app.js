@@ -61,18 +61,18 @@ function makeMove(gameobj,movereq){
     //up
     if(nextmove[0][0] > nextmove[1][0]&& nextmove[0][0] - nextmove[1][0] == 2){
         //right
-        if(nextmove[0][1] > nextmove[1][1]){
-            gameobj.boardstate[nextmove[0][0]-1][nextmove[0][1]-1] = 0; }
+        if(nextmove[0][1] < nextmove[1][1]){
+            gameobj.boardstate[nextmove[0][0]-1][nextmove[0][1]+1] = 0; }
         else{
             gameobj.boardstate[nextmove[0][0]-1][nextmove[1][1]-1] = 0; }
 
     } // down
     else if(nextmove[0][0] < nextmove[1][0]&& nextmove[1][0] - nextmove[0][0] == 2){
-        if(nextmove[0][1] > nextmove[1][1]){
-            gameobj.boardstate[nextmove[1][0]-1][nextmove[1][1]-1] = 0;
+        if(nextmove[0][1] < nextmove[1][1]){
+            gameobj.boardstate[nextmove[1][0]-1][nextmove[1][1]+1] = 0;
         }
         else{
-            gameobj.boardstate[nextmove[1][0]-1][nextmove[0][1]+1] = 0;
+            gameobj.boardstate[nextmove[1][0]-1][nextmove[0][1]-1] = 0;
         }
     }
     gameobj.boardstate = checkForKings(gameobj.boardstate);
@@ -236,7 +236,7 @@ function checkForMoves(board, row, col){
 function checkForKings(board) {
     for (var i= 0; i < 8; i++) {
         if (board[7][i] == 1) {
-
+            board[7][i] = 2;
         }
     }
 
