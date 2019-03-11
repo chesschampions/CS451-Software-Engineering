@@ -50,11 +50,15 @@ function equalmoves(x,y) {
     return x[0] == y[0] && x[1]== y[1];
 }
 
+//Alters the datastructure and checks for king pieces.
 function makeMove(gameobj,movereq){
     var nextmove = [[movereq[1],movereq[2]], [movereq[3],movereq[4]]];
     var boardchar = gameobj.boardstate[nextmove[0][0]][nextmove[0][1]];
     gameobj.boardstate[nextmove[0][0]][nextmove[0][1]] = 0;
     gameobj.boardstate[nextmove[1][0]][nextmove[1][1]] = boardchar;
+    //Check for jumps.
+    if(nextmove[0][0] > nextmove[1][0]&& nextmove[0][0] - nextmove[1][0] == -2){gameobj.boardstate[nextmove[0][0]-1]}
+    if(nextmove[0][0] < nextmove[1][0]&& nextmove[1][0] - nextmove[1][0] == -2){}
     gameobj.boardstate = checkForKings(gameobj.boardstate);
     if (gameobj.curPlayer == "X") {gameobj.curPlayer = "O";} else {gameobj.curPlayer = "X";}
     return gameobj;
@@ -66,17 +70,22 @@ function convertHashedMove(move){
     return [row,col];
 }
 
+//Checking for O pieces
 function isO(piece){ return piece == 1 || piece == 2;}
 
+//Looking for mandatory moves for a certain player
+//Concats them into a list of all mandatory moves and returns
 function checkForMandatoryMoves(player,board){
     var mandatoryMoves = [];
-
-    for(let piece in getPieces(player,board)){
+    var allPieces =  getPieces(player,board);
+    for(var i=0; i<allPieces.length; i++;){
+        var piece = allPieces[i];
         mandatoryMoves.concat(checkForJumps(board,piece[1],piece[2]));
     }
     return mandatoryMoves;
 }
-
+//Checks a ring of size 2 diagonally for any jumps.
+//Returns a list of possible jumps for a given piece
 function checkForJumps(board, row, col){
         console.log(board);
         var Xupmoves = [];
@@ -112,6 +121,8 @@ function checkForJumps(board, row, col){
             console.out("Something bad happened with jump moves");
         }
 }
+
+//Get's allpieces of a given player or both.
 function getPieces(player,board){
     var pieces = [];
     for(let row in board){
@@ -145,6 +156,9 @@ function getPieces(player,board){
         console.log("bad getPieces req");
     }
 }
+
+//Checks a ring of size 2 diagonally for any jumps.
+//Returns a list of possible jumps for a given piece
 function checkForMoves(board, row, col){
     console.log("Piece were looking at ", board[row][col]);
     var upmoves =[];
@@ -176,6 +190,8 @@ function checkForMoves(board, row, col){
         return [];
     }
 }
+
+//Checks rows to coronate.
 function checkForKings(board) {
     for (let piece in board[7]) {
         if (piece == 1) {
