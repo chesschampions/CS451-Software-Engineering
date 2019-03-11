@@ -129,17 +129,16 @@ socket.on("error", function(msg){
 // fresh board
 var game = {
     Player: "N",
-    boardstate: 
-    [
-        [1,0,1,0,1,0,1,0],
-        [0,1,0,1,0,1,0,1],
-        [1,0,1,0,1,0,1,0],
-        [0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0],
-        [0,-1,0,-1,0,-1,0,-1],
-        [-1,0,-1,0,-1,0,-1,0],
-        [0,-1,0,-1,0,-1,0,-1]
-    ]};
+    boardstate: [
+            [1,0,1,0,1,0,1,0],
+            [0,1,0,1,0,1,0,1],
+            [1,0,1,0,1,0,1,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,3,0,3,0,3,0,3],
+            [3,0,3,0,3,0,3,0],
+            [0,3,0,3,0,3,0,3],
+        ]};
 
 // who am I
 socket.on("playerName", function(msg)
@@ -185,16 +184,8 @@ function startGame(hosting)
 
 //globals
 
-var board = [
-    [1,0,1,0,1,0,1,0],
-    [0,1,0,1,0,1,0,1],
-    [1,0,1,0,1,0,1,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,3,0,3,0,3,0,3],
-    [3,0,3,0,3,0,3,0],
-    [0,3,0,3,0,3,0,3],
-];
+var board = game.boardstate;
+var player = game.Player;
 
 var lastHighlightedMoves = [];
 
@@ -202,14 +193,14 @@ var currentlySelectedPiece;
 
 function reply_click(clicked_id) {
     var canMove = true;
-    var movereq = [player, row, column];
 
-    var row = parseInt(clicked_id);
-    row = row < 10 ? 0 : Math.floor(row / 10);
-    var column = parseInt(clicked_id);
-    column = column % 10;
+    var origrow = parseInt(clicked_id);
+    row = origrow < 10 ? 0 : Math.floor(origrow / 10);
+    var origcolumn = parseInt(clicked_id);
+    column = origcolumn % 10;
     var listOfMoves = [];
     var clickedSquare = document.getElementById(clicked_id);
+    var movereq = [player, origrow, origcolumn, row, column];
 
     if (clickedSquare.textContent === "") {
         /*if(hasMandatory(currentlySelectedPiece.textContent)){
@@ -221,7 +212,8 @@ function reply_click(clicked_id) {
                 }
             }
         } else */
-        socket.emit("moveReq", "moveRes", (res) => {
+
+        socket.emit("moveReq", movereq, "moveRes", (res) => {
             if (clickedSquare.className === "green" && res === true)
             //Move Piece Changes GUI.
                 movePiece(clickedSquare, row, column);
@@ -232,7 +224,7 @@ function reply_click(clicked_id) {
     else {
     currentlySelectedPiece = clickedSquare;
     listOfMoves = checkR(row, column);
-    if(listOfMoves == ""){
+    if(listOfMoves === ""){
         listOfMoves = checkG(row, column);
     }
     clearLastHighlightedMoves();
@@ -244,7 +236,7 @@ function reply_click(clicked_id) {
     }
 }
 
-function hasMandatory(player){
+function hasMandatory(){
     var allPieces = document.getElementsByClassName("black");
     var myPieces = [];
     if(player == "O"){
@@ -275,7 +267,7 @@ function hasMandatory(player){
     return false;
 }
 
-function isEatingPiece(clicked_id, player){
+function isEatingPiece(clicked_id){
     var allPieces = document.getElementsByClassName("black");
     var myPieces = [];
     if(player == "O"){

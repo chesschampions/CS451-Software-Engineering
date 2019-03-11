@@ -56,6 +56,7 @@ io.on('connection', function(socket){
     console.log("user connected ");
     //Fresh board is generated.
     var isgame = false;
+
     var game = {
         curPlayer : "X",
         boardstate : [
@@ -68,6 +69,7 @@ io.on('connection', function(socket){
                 [3,0,3,0,3,0,3,0],
                 [0,3,0,3,0,3,0,3],
             ]};
+
     var roomid = -2;
 
     socket.on("gameReq", function(msg){
