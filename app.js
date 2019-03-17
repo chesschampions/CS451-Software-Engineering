@@ -96,17 +96,82 @@ function checkForJumps(board, row, col){
         var upLeft    = [];
 
         //Need to change so it doesn't get stuck on it's own pieces.
-        if(row < maxRow && col < maxCol && board[row+2][col+2] == 0 && board[row+1][col+1] != 0) {upRight   = [row+2,col+2]; if(isO(board[row][col])) { if(!(isO(board[row+1][col+1]))){Oupmoves.push(upRight);} } else {      if(isO(board[row+1][col+1])){Xupmoves.push(upRight);}}}
-        if(row > minRow && col < maxCol && board[row-2][col+2] == 0 && board[row-1][col+1] != 0) {downRight = [row-2,col+2]; if(isO(board[row][col])) { if(!(isO(board[row-1][col+1]))){Odownmoves.push(downRight);} } else {  if(isO(board[row-1][col+1])){Xdownmoves.push(downRight);}}}
-        if(row < maxRow && col > minCol && board[row+2][col-2] == 0 && board[row+1][col-1] != 0) {upLeft    = [row+2,col-2]; if(isO(board[row][col])) { if(!(isO(board[row+1][col-1]))){Oupmoves.push(upLeft);} } else {       if(isO(board[row+1][col-1])){Xupmoves.push(upLeft);}}}
-        if(row > minRow && col > minCol && board[row-2][col-2] == 0 && board[row-1][col-1] != 0) {downLeft  = [row-2,col-2]; if(isO(board[row][col])) { if(!(isO(board[row-1][col-1]))){Odownmoves.push(downLeft);} } else {   if(isO(board[row-1][col-1])){Xdownmoves.push(downLeft);}}}
+        if(row < maxRow && col < maxCol && board[row+2][col+2] == 0 && board[row+1][col+1] != 0) 
+        {
+            upRight   = [row+2,col+2]; 
+            if(isO(board[row][col])) 
+            { 
+                if(!(isO(board[row+1][col+1])))
+                {
+                    Oupmoves.push(upRight);
+                } 
+            } else 
+            {
+                if(isO(board[row+1][col+1]))
+                {
+                    Xupmoves.push(upRight);
+                }
+            }
+        }
+        if(row > minRow && col < maxCol && board[row-2][col+2] == 0 && board[row-1][col+1] != 0) 
+        {
+            downRight = [row-2,col+2]; 
+            if(isO(board[row][col])) 
+            {
+                if(!(isO(board[row-1][col+1])))
+                    {
+                        Odownmoves.push(downRight);
+                    } 
+            } else 
+            {  
+                if(isO(board[row-1][col+1]))
+                {
+                    Xdownmoves.push(downRight);
+                }
+            }
+        }
+        if(row < maxRow && col > minCol && board[row+2][col-2] == 0 && board[row+1][col-1] != 0) 
+        {
+            upLeft = [row+2,col-2]; 
+            if(isO(board[row][col])) 
+            {
+                if(!(isO(board[row+1][col-1])))
+                {   
+                    Oupmoves.push(upLeft);}
+                } else 
+                {  
+                    if(isO(board[row+1][col-1]))
+                    {
+                        Xupmoves.push(upLeft);
+                    }
+                }
+        }
+        if(row > minRow && col > minCol && board[row-2][col-2] == 0 && board[row-1][col-1] != 0) 
+        {
+            downLeft  = [row-2,col-2]; 
+            if(isO(board[row][col])) 
+            {
+                if(!(isO(board[row-1][col-1])))
+                {   
+                    Odownmoves.push(downLeft);
+                }
+            } else 
+            {   
+                if(isO(board[row-1][col-1]))
+                {
+                    Xdownmoves.push(downLeft);
+                }
+            }
+        }
 
         console.log("jumps Xup and down " + Xupmoves + " DD  " + Xdownmoves);
-        console.log("jumps O yp and down" + Oupmoves + " DD  "+ Odownmoves);
+        console.log("jumps Oyp and down" + Oupmoves + " DD  "+ Odownmoves);
 
         if (board[row][col] == 2){
             return Oupmoves.concat(Odownmoves);
         } else if(board[row][col] == 4 ){
+            console.log("Z king");
+            console.log(Xdownmoves + "\n" + Xupmoves);
             return Xupmoves.concat(Xdownmoves);
         } else if(board[row][col]==1){
             console.log("RETURNING ODOWN " + Odownmoves);
@@ -236,7 +301,7 @@ function movevalidator(gameobj, movereq) {
 
     //var mandatoryMoves =checkForMandatoryMoves(player,gameobj.boardstate);
     console.log("Done with mandatory moves");
-    var otherMoves = checkForMoves(gameobj.boardstate, origpos[0], origpos[1]);
+    var otherMoves = checkForMoves(board, origpos[0], origpos[1]);
 
     let jumpflag = false;
 //    var mandatoryMoves = [];
